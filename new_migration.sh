@@ -3,8 +3,9 @@
 local last_index=$(find . -type f -name "*.sql*"|sed -e 's/^.*\/\([0-9]\+\).*$/\1/'|sort|tail -1)
 
 function db_with_user() {
+    local idx=$(printf "%02d" $(( $1 + 1 )))
     local db_uppercase=$(echo ${2}|tr '[:lower:]' '[:upper:]')
-    cat <<EOUP > templates/${1}_${2}.up.sql.tmpl
+    cat <<EOUP > templates/${idx}_${2}.up.sql.tmpl
 CREATE DATABASE IF NOT EXISTS ${2};
 CREATE USER IF NOT EXISTS '{{ .${db_uppercase}_USER }}'@'%' IDENTIFIED BY '{{ .${db_uppercase}_PASSWORD }}';
 GRANT ALL PRIVILEGES ON ${2}.* TO '{{ .${db_uppercase}_USER }}'@'%';
@@ -13,7 +14,7 @@ FLUSH PRIVILEGES;
 -- vim:set syntax=sql:
 EOUP
 
-    cat <<EODOWN > templates/${1}_${2}.down.sql.tmpl
+    cat <<EODOWN > templates/${idx}_${2}.down.sql.tmpl
 DROP USER IF EXISTS '{{ .${db_uppercase}_USER }}'@'%';
 DROP DATABASE IF EXISTS ${2};
 
